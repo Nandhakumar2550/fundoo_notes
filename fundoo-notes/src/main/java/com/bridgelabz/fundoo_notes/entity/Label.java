@@ -1,39 +1,26 @@
 package com.bridgelabz.fundoo_notes.entity;
 
-
 import jakarta.persistence.*;
 import lombok.*;
-import java.util.List;
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 @Entity
-@Table(name = "notes")
+@Table(name = "labels")
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Note {
+public class Label {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
-    private String title;
-
-    @Column(length = 5000)
-    private String description;
-
-    @Column(nullable = false)
-    private boolean pinned;
-
-    @Column(nullable = false)
-    private boolean archived;
-
-    @Column(nullable = false)
-    private boolean trashed;
+    private String name;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
@@ -45,26 +32,17 @@ public class Note {
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @ManyToMany
-    @JoinTable(
-            name = "note_labels",
-            joinColumns = @JoinColumn(name = "note_id"),
-            inverseJoinColumns = @JoinColumn(name = "label_id")
-    )
-    private List<Label> labels;
+    @ManyToMany(mappedBy = "labels")
+    private List<Note> notes;
 
     @PrePersist
     public void onCreate() {
         this.createdAt = LocalDateTime.now();
         this.updatedAt = LocalDateTime.now();
-        this.pinned = false;
-        this.archived = false;
-        this.trashed = false;
     }
 
     @PreUpdate
     public void onUpdate() {
         this.updatedAt = LocalDateTime.now();
     }
-
 }
