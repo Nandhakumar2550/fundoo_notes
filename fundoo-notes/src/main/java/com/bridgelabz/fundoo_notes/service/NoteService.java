@@ -7,29 +7,15 @@ import java.util.List;
 
 public interface NoteService {
 
-    NoteResponse createNote(
-            NoteRequest request,
-            String email
-    );
+    NoteResponse createNote(NoteRequest request, String email);
 
-    List<NoteResponse> getAllNotes(
-            String email
-    );
+    List<NoteResponse> getAllNotes(String email);
 
-    NoteResponse updateNote(
-            Long noteId,
-            NoteRequest request,
-            String email
-    );
+    NoteResponse updateNote(Long noteId, NoteRequest request, String email);
 
-    String deleteNote(
-            Long noteId,
-            String email
-    );
+    String deleteNote(Long noteId, String email);
 
-    NoteResponse assignLabelToNote(
-            Long noteId,
-            Long labelId,
-            String email
-    );
+    NoteResponse assignLabelToNote(Long noteId, Long labelId, String email);
+
+    NoteResponse archiveNote(Long noteId, String email);
 }

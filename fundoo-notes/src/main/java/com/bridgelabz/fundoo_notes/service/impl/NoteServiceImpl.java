@@ -171,4 +171,34 @@ public class NoteServiceImpl implements NoteService {
                 .trashed(note.isTrashed())
                 .build();
     }
+    @Override
+    public NoteResponse archiveNote(
+            Long noteId,
+            String email) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new RuntimeException("User not found"));
+
+        Note note = noteRepository.findById(noteId)
+                .orElseThrow(() ->
+                        new RuntimeException("Note not found"));
+
+        if (!note.getUser().getId().equals(user.getId())) {
+            throw new RuntimeException("Unauthorized access");
+        }
+
+        note.setArchived(true);
+
+        noteRepository.save(note);
+
+        return NoteResponse.builder()
+                .id(note.getId())
+                .title(note.getTitle())
+                .description(note.getDescription())
+                .pinned(note.isPinned())
+                .archived(note.isArchived())
+                .trashed(note.isTrashed())
+                .build();
+    }
 }

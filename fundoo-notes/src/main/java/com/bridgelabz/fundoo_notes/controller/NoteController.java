@@ -77,4 +77,15 @@ public class NoteController {
                 )
         );
     }
+    @PutMapping("/{id}/archive")
+    public ResponseEntity<NoteResponse> archiveNote(
+            @PathVariable Long id,
+            Authentication authentication) {
+
+        String email = authentication.getName();
+
+        return ResponseEntity.ok(
+                noteService.archiveNote(id, email)
+        );
+    }
 }
