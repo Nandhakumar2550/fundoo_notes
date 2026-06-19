@@ -12,6 +12,9 @@ import com.bridgelabz.fundoo_notes.service.LabelService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 @Service
 @RequiredArgsConstructor
 public class LabelServiceImpl implements LabelService {
@@ -39,5 +42,23 @@ public class LabelServiceImpl implements LabelService {
                 .id(label.getId())
                 .name(label.getName())
                 .build();
+    }
+    @Override
+    public List<LabelResponse> getAllLabels(
+            String email) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new RuntimeException("User not found"));
+
+        List<Label> labels =
+                labelRepository.findByUser(user);
+
+        return labels.stream()
+                .map(label -> LabelResponse.builder()
+                        .id(label.getId())
+                        .name(label.getName())
+                        .build())
+                .collect(Collectors.toList());
     }
 }

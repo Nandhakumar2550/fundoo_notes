@@ -11,6 +11,8 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
+
 @RestController
 @RequestMapping("/api/labels")
 @RequiredArgsConstructor
@@ -27,6 +29,16 @@ public class LabelController {
 
         return ResponseEntity.ok(
                 labelService.createLabel(request, email)
+        );
+    }
+    @GetMapping
+    public ResponseEntity<List<LabelResponse>> getAllLabels(
+            Authentication authentication) {
+
+        String email = authentication.getName();
+
+        return ResponseEntity.ok(
+                labelService.getAllLabels(email)
         );
     }
 }
