@@ -39,4 +39,16 @@ public class NoteController {
                 noteService.getAllNotes(email)
         );
     }
+    @PutMapping("/{id}")
+    public ResponseEntity<NoteResponse> updateNote(
+            @PathVariable Long id,
+            @Valid @RequestBody NoteRequest request,
+            Authentication authentication) {
+
+        String email = authentication.getName();
+
+        return ResponseEntity.ok(
+                noteService.updateNote(id, request, email)
+        );
+    }
 }

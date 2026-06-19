@@ -15,4 +15,10 @@ public interface NoteService {
     List<NoteResponse> getAllNotes(
             String email
     );
+
+    NoteResponse updateNote(
+            Long noteId,
+            NoteRequest request,
+            String email
+    );
 }
