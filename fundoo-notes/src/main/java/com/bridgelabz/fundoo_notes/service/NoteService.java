@@ -20,4 +20,6 @@ public interface NoteService {
     NoteResponse archiveNote(Long noteId, String email);
 
     NoteResponse trashNote(Long noteId, String email);
+
+    NoteResponse togglePinNote(Long noteId, String email);
 }

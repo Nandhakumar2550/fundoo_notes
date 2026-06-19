@@ -98,5 +98,15 @@ public class NoteController {
         return ResponseEntity.ok(
                 noteService.trashNote(id, email)
         );
+    }@PutMapping("/{id}/pin")
+    public ResponseEntity<NoteResponse> togglePinNote(
+            @PathVariable Long id,
+            Authentication authentication) {
+
+        String email = authentication.getName();
+
+        return ResponseEntity.ok(
+                noteService.togglePinNote(id, email)
+        );
     }
 }
