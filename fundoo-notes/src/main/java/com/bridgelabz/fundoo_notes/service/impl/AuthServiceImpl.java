@@ -1,5 +1,6 @@
 package com.bridgelabz.fundoo_notes.service.impl;
 
+import com.bridgelabz.fundoo_notes.config.JwtService;
 import com.bridgelabz.fundoo_notes.dto.request.AuthRequest;
 import com.bridgelabz.fundoo_notes.dto.response.AuthResponse;
 import com.bridgelabz.fundoo_notes.entity.User;
@@ -15,6 +16,7 @@ public class AuthServiceImpl implements AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final JwtService jwtService;
 
     @Override
     public AuthResponse register(AuthRequest request) {
@@ -63,7 +65,10 @@ public class AuthServiceImpl implements AuthService {
                     .build();
         }
 
+        String token = jwtService.generateToken(user.getEmail());
+
         return AuthResponse.builder()
+                .token(token)
                 .message("Login successful")
                 .build();
     }
