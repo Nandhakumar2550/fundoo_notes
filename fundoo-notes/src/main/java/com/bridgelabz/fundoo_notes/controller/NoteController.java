@@ -61,4 +61,20 @@ public class NoteController {
                 noteService.deleteNote(id, email)
         );
     }
+    @PutMapping("/{noteId}/labels/{labelId}")
+    public ResponseEntity<NoteResponse> assignLabelToNote(
+            @PathVariable Long noteId,
+            @PathVariable Long labelId,
+            Authentication authentication) {
+
+        String email = authentication.getName();
+
+        return ResponseEntity.ok(
+                noteService.assignLabelToNote(
+                        noteId,
+                        labelId,
+                        email
+                )
+        );
+    }
 }

@@ -26,4 +26,10 @@ public interface NoteService {
             Long noteId,
             String email
     );
+
+    NoteResponse assignLabelToNote(
+            Long noteId,
+            Long labelId,
+            String email
+    );
 }
