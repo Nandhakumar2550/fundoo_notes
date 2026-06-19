@@ -6,6 +6,7 @@ import com.bridgelabz.fundoo_notes.dto.request.LabelRequest;
 import com.bridgelabz.fundoo_notes.dto.response.LabelResponse;
 import com.bridgelabz.fundoo_notes.entity.Label;
 import com.bridgelabz.fundoo_notes.entity.User;
+import com.bridgelabz.fundoo_notes.exception.ResourceNotFoundException;
 import com.bridgelabz.fundoo_notes.repository.LabelRepository;
 import com.bridgelabz.fundoo_notes.repository.UserRepository;
 import com.bridgelabz.fundoo_notes.service.LabelService;
@@ -29,7 +30,9 @@ public class LabelServiceImpl implements LabelService {
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() ->
-                        new RuntimeException("User not found"));
+                {
+                    throw new ResourceNotFoundException("User not found");
+                });
 
         Label label = Label.builder()
                 .name(request.getName())
@@ -49,7 +52,9 @@ public class LabelServiceImpl implements LabelService {
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() ->
-                        new RuntimeException("User not found"));
+                {
+                    throw new ResourceNotFoundException("User not found");
+                });
 
         List<Label> labels =
                 labelRepository.findByUser(user);

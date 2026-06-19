@@ -5,6 +5,7 @@ import com.bridgelabz.fundoo_notes.dto.request.AuthRequest;
 import com.bridgelabz.fundoo_notes.dto.response.AuthResponse;
 import com.bridgelabz.fundoo_notes.dto.response.UserResponse;
 import com.bridgelabz.fundoo_notes.entity.User;
+import com.bridgelabz.fundoo_notes.exception.ResourceNotFoundException;
 import com.bridgelabz.fundoo_notes.repository.UserRepository;
 import com.bridgelabz.fundoo_notes.service.AuthService;
 import lombok.RequiredArgsConstructor;
@@ -78,7 +79,9 @@ public class AuthServiceImpl implements AuthService {
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() ->
-                        new RuntimeException("User not found"));
+                {
+                    throw new ResourceNotFoundException("User not found");
+                });
 
         return UserResponse.builder()
                 .id(user.getId())

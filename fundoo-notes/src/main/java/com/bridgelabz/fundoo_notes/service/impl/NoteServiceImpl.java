@@ -5,6 +5,8 @@ import com.bridgelabz.fundoo_notes.dto.request.NoteRequest;
 import com.bridgelabz.fundoo_notes.dto.response.NoteResponse;
 import com.bridgelabz.fundoo_notes.entity.Note;
 import com.bridgelabz.fundoo_notes.entity.User;
+import com.bridgelabz.fundoo_notes.exception.ResourceNotFoundException;
+import com.bridgelabz.fundoo_notes.exception.UnauthorizedException;
 import com.bridgelabz.fundoo_notes.repository.LabelRepository;
 import com.bridgelabz.fundoo_notes.repository.NoteRepository;
 import com.bridgelabz.fundoo_notes.repository.UserRepository;
@@ -83,14 +85,17 @@ public class NoteServiceImpl implements NoteService {
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() ->
-                        new RuntimeException("User not found"));
-
+                {
+                    throw new ResourceNotFoundException("User not found");
+                });
         Note note = noteRepository.findById(noteId)
                 .orElseThrow(() ->
-                        new RuntimeException("Note not found"));
+                {
+                    throw new ResourceNotFoundException("User not found");
+                });
 
         if (!note.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("Unauthorized access");
+            throw new UnauthorizedException("Unauthorized access");
         }
 
         note.setTitle(request.getTitle());
@@ -114,14 +119,18 @@ public class NoteServiceImpl implements NoteService {
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() ->
-                        new RuntimeException("User not found"));
+                {
+                    throw new ResourceNotFoundException("User not found");
+                });
 
         Note note = noteRepository.findById(noteId)
                 .orElseThrow(() ->
-                        new RuntimeException("Note not found"));
+                {
+                    throw new ResourceNotFoundException("User not found");
+                });
 
         if (!note.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("Unauthorized access");
+            throw new UnauthorizedException("Unauthorized access");
         }
 
         noteRepository.delete(note);
@@ -136,22 +145,28 @@ public class NoteServiceImpl implements NoteService {
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() ->
-                        new RuntimeException("User not found"));
+                {
+                    throw new ResourceNotFoundException("User not found");
+                });
 
         Note note = noteRepository.findById(noteId)
                 .orElseThrow(() ->
-                        new RuntimeException("Note not found"));
+                {
+                    throw new ResourceNotFoundException("User not found");
+                });
 
         Label label = labelRepository.findById(labelId)
                 .orElseThrow(() ->
-                        new RuntimeException("Label not found"));
+                {
+                    throw new ResourceNotFoundException("User not found");
+                });
 
         if (!note.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("Unauthorized note access");
+            throw new UnauthorizedException("Unauthorized access");
         }
 
         if (!label.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("Unauthorized label access");
+            throw new UnauthorizedException("Unauthorized access");
         }
 
         if (note.getLabels() == null) {
@@ -178,14 +193,18 @@ public class NoteServiceImpl implements NoteService {
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() ->
-                        new RuntimeException("User not found"));
+                {
+                    throw new ResourceNotFoundException("User not found");
+                });
 
         Note note = noteRepository.findById(noteId)
                 .orElseThrow(() ->
-                        new RuntimeException("Note not found"));
+                {
+                    throw new ResourceNotFoundException("User not found");
+                });
 
         if (!note.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("Unauthorized access");
+            throw new UnauthorizedException("Unauthorized access");
         }
 
         note.setArchived(true);
@@ -206,14 +225,18 @@ public class NoteServiceImpl implements NoteService {
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() ->
-                        new RuntimeException("User not found"));
+                {
+                    throw new ResourceNotFoundException("User not found");
+                });
 
         Note note = noteRepository.findById(noteId)
                 .orElseThrow(() ->
-                        new RuntimeException("Note not found"));
+                {
+                    throw new ResourceNotFoundException("User not found");
+                });
 
         if (!note.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("Unauthorized access");
+            throw new UnauthorizedException("Unauthorized access");
         }
 
         note.setTrashed(true);
@@ -235,14 +258,18 @@ public class NoteServiceImpl implements NoteService {
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() ->
-                        new RuntimeException("User not found"));
+                {
+                    throw new ResourceNotFoundException("User not found");
+                });
 
         Note note = noteRepository.findById(noteId)
                 .orElseThrow(() ->
-                        new RuntimeException("Note not found"));
+                {
+                    throw new ResourceNotFoundException("User not found");
+                });
 
         if (!note.getUser().getId().equals(user.getId())) {
-            throw new RuntimeException("Unauthorized access");
+            throw new UnauthorizedException("Unauthorized access");
         }
 
         note.setPinned(!note.isPinned());
