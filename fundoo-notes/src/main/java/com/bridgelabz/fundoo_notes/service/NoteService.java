@@ -18,4 +18,6 @@ public interface NoteService {
     NoteResponse assignLabelToNote(Long noteId, Long labelId, String email);
 
     NoteResponse archiveNote(Long noteId, String email);
+
+    NoteResponse trashNote(Long noteId, String email);
 }

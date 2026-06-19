@@ -88,4 +88,15 @@ public class NoteController {
                 noteService.archiveNote(id, email)
         );
     }
+    @PutMapping("/{id}/trash")
+    public ResponseEntity<NoteResponse> trashNote(
+            @PathVariable Long id,
+            Authentication authentication) {
+
+        String email = authentication.getName();
+
+        return ResponseEntity.ok(
+                noteService.trashNote(id, email)
+        );
+    }
 }
