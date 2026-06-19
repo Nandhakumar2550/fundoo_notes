@@ -21,4 +21,9 @@ public interface NoteService {
             NoteRequest request,
             String email
     );
+
+    String deleteNote(
+            Long noteId,
+            String email
+    );
 }

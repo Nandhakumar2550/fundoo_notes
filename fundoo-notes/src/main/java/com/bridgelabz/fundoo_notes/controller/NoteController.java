@@ -50,5 +50,15 @@ public class NoteController {
         return ResponseEntity.ok(
                 noteService.updateNote(id, request, email)
         );
+    }@DeleteMapping("/{id}")
+    public ResponseEntity<String> deleteNote(
+            @PathVariable Long id,
+            Authentication authentication) {
+
+        String email = authentication.getName();
+
+        return ResponseEntity.ok(
+                noteService.deleteNote(id, email)
+        );
     }
 }
