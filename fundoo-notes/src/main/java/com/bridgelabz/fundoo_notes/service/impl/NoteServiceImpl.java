@@ -1,8 +1,8 @@
 package com.bridgelabz.fundoo_notes.service.impl;
 
-
 import com.bridgelabz.fundoo_notes.dto.request.NoteRequest;
 import com.bridgelabz.fundoo_notes.dto.response.NoteResponse;
+import com.bridgelabz.fundoo_notes.entity.Label;
 import com.bridgelabz.fundoo_notes.entity.Note;
 import com.bridgelabz.fundoo_notes.entity.User;
 import com.bridgelabz.fundoo_notes.exception.ResourceNotFoundException;
@@ -12,31 +12,33 @@ import com.bridgelabz.fundoo_notes.repository.NoteRepository;
 import com.bridgelabz.fundoo_notes.repository.UserRepository;
 import com.bridgelabz.fundoo_notes.service.NoteService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-import java.util.List;
-import com.bridgelabz.fundoo_notes.entity.Label;
-import com.bridgelabz.fundoo_notes.repository.LabelRepository;
+
 import java.util.ArrayList;
-
-
+import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
 public class NoteServiceImpl implements NoteService {
 
+    private static final Logger logger =
+            LoggerFactory.getLogger(NoteServiceImpl.class);
+
     private final NoteRepository noteRepository;
     private final UserRepository userRepository;
     private final LabelRepository labelRepository;
 
     @Override
-    public NoteResponse createNote(
-            NoteRequest request,
-            String email) {
+    public NoteResponse createNote(NoteRequest request, String email) {
+
+        logger.info("Creating note for user: {}", email);
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() ->
-                        new RuntimeException("User not found"));
+                        new ResourceNotFoundException("User not found"));
 
         Note note = Note.builder()
                 .title(request.getTitle())
@@ -46,128 +48,67 @@ public class NoteServiceImpl implements NoteService {
 
         noteRepository.save(note);
 
-        return NoteResponse.builder()
-                .id(note.getId())
-                .title(note.getTitle())
-                .description(note.getDescription())
-                .pinned(note.isPinned())
-                .archived(note.isArchived())
-                .trashed(note.isTrashed())
-                .build();
+        logger.info("Note created successfully ID: {}", note.getId());
+
+        return mapToResponse(note);
     }
+
     @Override
-    public List<NoteResponse> getAllNotes(
-            String email) {
+    public List<NoteResponse> getAllNotes(String email) {
+
+        logger.info("Fetching all notes for user: {}", email);
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() ->
-                        new RuntimeException("User not found"));
+                        new ResourceNotFoundException("User not found"));
 
-        List<Note> notes =
-                noteRepository.findByUser(user);
-
-        return notes.stream()
-                .map(note -> NoteResponse.builder()
-                        .id(note.getId())
-                        .title(note.getTitle())
-                        .description(note.getDescription())
-                        .pinned(note.isPinned())
-                        .archived(note.isArchived())
-                        .trashed(note.isTrashed())
-                        .build())
+        return noteRepository.findByUser(user)
+                .stream()
+                .map(this::mapToResponse)
                 .collect(Collectors.toList());
     }
+
     @Override
-    public NoteResponse updateNote(
-            Long noteId,
-            NoteRequest request,
-            String email) {
+    public NoteResponse updateNote(Long noteId, NoteRequest request, String email) {
 
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() ->
-                {
-                    throw new ResourceNotFoundException("User not found");
-                });
-        Note note = noteRepository.findById(noteId)
-                .orElseThrow(() ->
-                {
-                    throw new ResourceNotFoundException("User not found");
-                });
+        logger.info("Updating note ID: {}", noteId);
 
-        if (!note.getUser().getId().equals(user.getId())) {
-            throw new UnauthorizedException("Unauthorized access");
-        }
+        Note note = getAuthorizedNote(noteId, email);
 
         note.setTitle(request.getTitle());
         note.setDescription(request.getDescription());
 
         noteRepository.save(note);
 
-        return NoteResponse.builder()
-                .id(note.getId())
-                .title(note.getTitle())
-                .description(note.getDescription())
-                .pinned(note.isPinned())
-                .archived(note.isArchived())
-                .trashed(note.isTrashed())
-                .build();
+        logger.info("Note updated successfully ID: {}", noteId);
+
+        return mapToResponse(note);
     }
+
     @Override
-    public String deleteNote(
-            Long noteId,
-            String email) {
+    public String deleteNote(Long noteId, String email) {
 
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() ->
-                {
-                    throw new ResourceNotFoundException("User not found");
-                });
+        logger.info("Deleting note ID: {}", noteId);
 
-        Note note = noteRepository.findById(noteId)
-                .orElseThrow(() ->
-                {
-                    throw new ResourceNotFoundException("User not found");
-                });
-
-        if (!note.getUser().getId().equals(user.getId())) {
-            throw new UnauthorizedException("Unauthorized access");
-        }
+        Note note = getAuthorizedNote(noteId, email);
 
         noteRepository.delete(note);
 
+        logger.info("Note deleted successfully ID: {}", noteId);
+
         return "Note deleted successfully";
     }
+
     @Override
-    public NoteResponse assignLabelToNote(
-            Long noteId,
-            Long labelId,
-            String email) {
+    public NoteResponse assignLabelToNote(Long noteId, Long labelId, String email) {
 
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() ->
-                {
-                    throw new ResourceNotFoundException("User not found");
-                });
+        logger.info("Assigning label {} to note {}", labelId, noteId);
 
-        Note note = noteRepository.findById(noteId)
-                .orElseThrow(() ->
-                {
-                    throw new ResourceNotFoundException("User not found");
-                });
+        Note note = getAuthorizedNote(noteId, email);
 
         Label label = labelRepository.findById(labelId)
                 .orElseThrow(() ->
-                {
-                    throw new ResourceNotFoundException("User not found");
-                });
-
-        if (!note.getUser().getId().equals(user.getId())) {
-            throw new UnauthorizedException("Unauthorized access");
-        }
-
-        if (!label.getUser().getId().equals(user.getId())) {
-            throw new UnauthorizedException("Unauthorized access");
-        }
+                        new ResourceNotFoundException("Label not found"));
 
         if (note.getLabels() == null) {
             note.setLabels(new ArrayList<>());
@@ -177,105 +118,69 @@ public class NoteServiceImpl implements NoteService {
 
         noteRepository.save(note);
 
-        return NoteResponse.builder()
-                .id(note.getId())
-                .title(note.getTitle())
-                .description(note.getDescription())
-                .pinned(note.isPinned())
-                .archived(note.isArchived())
-                .trashed(note.isTrashed())
-                .build();
+        return mapToResponse(note);
     }
+
     @Override
-    public NoteResponse archiveNote(
-            Long noteId,
-            String email) {
+    public NoteResponse archiveNote(Long noteId, String email) {
 
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() ->
-                {
-                    throw new ResourceNotFoundException("User not found");
-                });
+        logger.info("Archiving note ID: {}", noteId);
 
-        Note note = noteRepository.findById(noteId)
-                .orElseThrow(() ->
-                {
-                    throw new ResourceNotFoundException("User not found");
-                });
-
-        if (!note.getUser().getId().equals(user.getId())) {
-            throw new UnauthorizedException("Unauthorized access");
-        }
+        Note note = getAuthorizedNote(noteId, email);
 
         note.setArchived(true);
 
         noteRepository.save(note);
 
-        return NoteResponse.builder()
-                .id(note.getId())
-                .title(note.getTitle())
-                .description(note.getDescription())
-                .pinned(note.isPinned())
-                .archived(note.isArchived())
-                .trashed(note.isTrashed())
-                .build();
+        return mapToResponse(note);
     }
+
     @Override
     public NoteResponse trashNote(Long noteId, String email) {
 
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() ->
-                {
-                    throw new ResourceNotFoundException("User not found");
-                });
+        logger.info("Trashing note ID: {}", noteId);
 
-        Note note = noteRepository.findById(noteId)
-                .orElseThrow(() ->
-                {
-                    throw new ResourceNotFoundException("User not found");
-                });
-
-        if (!note.getUser().getId().equals(user.getId())) {
-            throw new UnauthorizedException("Unauthorized access");
-        }
+        Note note = getAuthorizedNote(noteId, email);
 
         note.setTrashed(true);
 
         noteRepository.save(note);
 
-        return NoteResponse.builder()
-                .id(note.getId())
-                .title(note.getTitle())
-                .description(note.getDescription())
-                .pinned(note.isPinned())
-                .archived(note.isArchived())
-                .trashed(note.isTrashed())
-                .build();
-    }@Override
-    public NoteResponse togglePinNote(
-            Long noteId,
-            String email) {
+        return mapToResponse(note);
+    }
 
-        User user = userRepository.findByEmail(email)
-                .orElseThrow(() ->
-                {
-                    throw new ResourceNotFoundException("User not found");
-                });
+    @Override
+    public NoteResponse togglePinNote(Long noteId, String email) {
 
-        Note note = noteRepository.findById(noteId)
-                .orElseThrow(() ->
-                {
-                    throw new ResourceNotFoundException("User not found");
-                });
+        logger.info("Toggling pin for note ID: {}", noteId);
 
-        if (!note.getUser().getId().equals(user.getId())) {
-            throw new UnauthorizedException("Unauthorized access");
-        }
+        Note note = getAuthorizedNote(noteId, email);
 
         note.setPinned(!note.isPinned());
 
         noteRepository.save(note);
 
+        return mapToResponse(note);
+    }
+
+    private Note getAuthorizedNote(Long noteId, String email) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found"));
+
+        Note note = noteRepository.findById(noteId)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Note not found"));
+
+        if (!note.getUser().getId().equals(user.getId())) {
+            throw new UnauthorizedException("Unauthorized access");
+        }
+
+        return note;
+    }
+
+    private NoteResponse mapToResponse(Note note) {
         return NoteResponse.builder()
                 .id(note.getId())
                 .title(note.getTitle())

@@ -1,7 +1,5 @@
 package com.bridgelabz.fundoo_notes.service.impl;
 
-
-
 import com.bridgelabz.fundoo_notes.dto.request.LabelRequest;
 import com.bridgelabz.fundoo_notes.dto.response.LabelResponse;
 import com.bridgelabz.fundoo_notes.entity.Label;
@@ -11,6 +9,8 @@ import com.bridgelabz.fundoo_notes.repository.LabelRepository;
 import com.bridgelabz.fundoo_notes.repository.UserRepository;
 import com.bridgelabz.fundoo_notes.service.LabelService;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,19 +20,20 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class LabelServiceImpl implements LabelService {
 
+    private static final Logger logger =
+            LoggerFactory.getLogger(LabelServiceImpl.class);
+
     private final LabelRepository labelRepository;
     private final UserRepository userRepository;
 
     @Override
-    public LabelResponse createLabel(
-            LabelRequest request,
-            String email) {
+    public LabelResponse createLabel(LabelRequest request, String email) {
+
+        logger.info("Creating label for user: {}", email);
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() ->
-                {
-                    throw new ResourceNotFoundException("User not found");
-                });
+                        new ResourceNotFoundException("User not found"));
 
         Label label = Label.builder()
                 .name(request.getName())
@@ -41,25 +42,25 @@ public class LabelServiceImpl implements LabelService {
 
         labelRepository.save(label);
 
+        logger.info("Label created successfully: {}", label.getName());
+
         return LabelResponse.builder()
                 .id(label.getId())
                 .name(label.getName())
                 .build();
     }
+
     @Override
-    public List<LabelResponse> getAllLabels(
-            String email) {
+    public List<LabelResponse> getAllLabels(String email) {
+
+        logger.info("Fetching all labels for user: {}", email);
 
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() ->
-                {
-                    throw new ResourceNotFoundException("User not found");
-                });
+                        new ResourceNotFoundException("User not found"));
 
-        List<Label> labels =
-                labelRepository.findByUser(user);
-
-        return labels.stream()
+        return labelRepository.findByUser(user)
+                .stream()
                 .map(label -> LabelResponse.builder()
                         .id(label.getId())
                         .name(label.getName())
