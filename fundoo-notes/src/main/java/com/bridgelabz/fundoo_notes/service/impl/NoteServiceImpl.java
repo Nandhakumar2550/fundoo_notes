@@ -19,6 +19,9 @@ import org.springframework.data.domain.Sort;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
 
 @Service
 @RequiredArgsConstructor
@@ -235,5 +238,33 @@ public class NoteServiceImpl implements NoteService {
         return notes.stream()
                 .map(this::mapToResponse)
                 .toList();
+    }
+    @Override
+    public Page<NoteResponse> getPaginatedNotes(
+            int page,
+            int size,
+            String email) {
+
+        logger.info(
+                "Fetching paginated notes for user: {}, page: {}, size: {}",
+                email,
+                page,
+                size
+        );
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found"));
+
+        Pageable pageable =
+                PageRequest.of(page, size);
+
+        Page<Note> notes =
+                noteRepository.findByUser(
+                        user,
+                        pageable
+                );
+
+        return notes.map(this::mapToResponse);
     }
 }

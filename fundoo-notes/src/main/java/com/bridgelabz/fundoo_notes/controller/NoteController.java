@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.data.domain.Page;
 
 import java.util.List;
 
@@ -135,6 +136,22 @@ public class NoteController {
                 noteService.sortNotes(
                         by,
                         direction,
+                        email
+                )
+        );
+    }
+    @GetMapping("/paginated")
+    public ResponseEntity<Page<NoteResponse>> getPaginatedNotes(
+            @RequestParam int page,
+            @RequestParam int size,
+            Authentication authentication) {
+
+        String email = authentication.getName();
+
+        return ResponseEntity.ok(
+                noteService.getPaginatedNotes(
+                        page,
+                        size,
                         email
                 )
         );

@@ -2,7 +2,7 @@ package com.bridgelabz.fundoo_notes.service;
 
 import com.bridgelabz.fundoo_notes.dto.request.NoteRequest;
 import com.bridgelabz.fundoo_notes.dto.response.NoteResponse;
-
+import org.springframework.data.domain.Page;
 import java.util.List;
 
 public interface NoteService {
@@ -28,6 +28,11 @@ public interface NoteService {
     List<NoteResponse> sortNotes(
             String by,
             String direction,
+            String email
+    );
+    Page<NoteResponse> getPaginatedNotes(
+            int page,
+            int size,
             String email
     );
 }
