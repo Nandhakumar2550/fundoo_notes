@@ -39,6 +39,9 @@ public class User {
     @Column(nullable = false)
     private LocalDateTime updatedAt;
 
+    @Column(name = "verification_token")
+    private String verificationToken;
+
     @PrePersist
     public void onCreate() {
         this.createdAt = LocalDateTime.now();

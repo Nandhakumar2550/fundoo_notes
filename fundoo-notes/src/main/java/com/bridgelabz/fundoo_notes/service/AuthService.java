@@ -12,4 +12,7 @@ public interface AuthService {
     AuthResponse login(AuthRequest request);
 
     UserResponse getLoggedInUser(String email);
+
+    String verifyEmail(String token);
+
 }

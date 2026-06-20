@@ -42,4 +42,12 @@ public class AuthController {
                 authService.getLoggedInUser(email)
         );
     }
+    @GetMapping("/verify")
+    public ResponseEntity<String> verifyEmail(
+            @RequestParam String token) {
+
+        return ResponseEntity.ok(
+                authService.verifyEmail(token)
+        );
+    }
 }
