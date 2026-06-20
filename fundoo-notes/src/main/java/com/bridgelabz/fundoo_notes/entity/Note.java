@@ -3,6 +3,9 @@ package com.bridgelabz.fundoo_notes.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
+
 import java.util.List;
 
 import java.time.LocalDateTime;
@@ -40,6 +43,7 @@ public class Note {
 
     @Column(nullable = false)
     private LocalDateTime updatedAt;
+    
 
     @ManyToOne
     @JoinColumn(name = "user_id", nullable = false)

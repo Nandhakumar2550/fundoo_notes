@@ -123,4 +123,20 @@ public class NoteController {
                 )
         );
     }
+    @GetMapping("/sort")
+    public ResponseEntity<List<NoteResponse>> sortNotes(
+            @RequestParam String by,
+            @RequestParam String direction,
+            Authentication authentication) {
+
+        String email = authentication.getName();
+
+        return ResponseEntity.ok(
+                noteService.sortNotes(
+                        by,
+                        direction,
+                        email
+                )
+        );
+    }
 }

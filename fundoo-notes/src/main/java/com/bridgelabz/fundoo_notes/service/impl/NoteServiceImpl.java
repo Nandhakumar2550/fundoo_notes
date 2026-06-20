@@ -15,7 +15,7 @@ import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
-
+import org.springframework.data.domain.Sort;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -203,6 +203,34 @@ public class NoteServiceImpl implements NoteService {
 
         List<Note> notes =
                 noteRepository.searchNotes(user, keyword);
+
+        return notes.stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+    @Override
+    public List<NoteResponse> sortNotes(
+            String by,
+            String direction,
+            String email) {
+
+        logger.info(
+                "Sorting notes for user: {} by {} {}",
+                email,
+                by,
+                direction
+        );
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found"));
+
+        Sort sort = direction.equalsIgnoreCase("desc")
+                ? Sort.by(by).descending()
+                : Sort.by(by).ascending();
+
+        List<Note> notes =
+                noteRepository.findByUser(user, sort);
 
         return notes.stream()
                 .map(this::mapToResponse)

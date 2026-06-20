@@ -24,4 +24,10 @@ public interface NoteService {
     NoteResponse togglePinNote(Long noteId, String email);
 
     List<NoteResponse> searchNotes(String keyword, String email);
+
+    List<NoteResponse> sortNotes(
+            String by,
+            String direction,
+            String email
+    );
 }
