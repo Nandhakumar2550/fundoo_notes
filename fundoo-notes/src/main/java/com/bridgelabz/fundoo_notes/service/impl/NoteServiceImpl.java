@@ -190,4 +190,22 @@ public class NoteServiceImpl implements NoteService {
                 .trashed(note.isTrashed())
                 .build();
     }
+    @Override
+    public List<NoteResponse> searchNotes(
+            String keyword,
+            String email) {
+
+        logger.info("Searching notes for user: {} with keyword: {}", email, keyword);
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found"));
+
+        List<Note> notes =
+                noteRepository.searchNotes(user, keyword);
+
+        return notes.stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
 }

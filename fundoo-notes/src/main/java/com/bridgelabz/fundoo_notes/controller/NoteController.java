@@ -109,4 +109,18 @@ public class NoteController {
                 noteService.togglePinNote(id, email)
         );
     }
+    @GetMapping("/search")
+    public ResponseEntity<List<NoteResponse>> searchNotes(
+            @RequestParam String keyword,
+            Authentication authentication) {
+
+        String email = authentication.getName();
+
+        return ResponseEntity.ok(
+                noteService.searchNotes(
+                        keyword,
+                        email
+                )
+        );
+    }
 }
