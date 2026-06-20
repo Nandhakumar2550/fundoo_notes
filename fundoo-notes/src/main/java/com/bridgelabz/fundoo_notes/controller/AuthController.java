@@ -10,6 +10,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
+import com.bridgelabz.fundoo_notes.dto.request.ForgotPasswordRequest;
+import com.bridgelabz.fundoo_notes.dto.request.ResetPasswordRequest;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -48,6 +50,28 @@ public class AuthController {
 
         return ResponseEntity.ok(
                 authService.verifyEmail(token)
+        );
+    }
+    @PostMapping("/forgot-password")
+    public ResponseEntity<String> forgotPassword(
+            @RequestBody ForgotPasswordRequest request) {
+
+        return ResponseEntity.ok(
+                authService.forgotPassword(
+                        request.getEmail()
+                )
+        );
+    }
+
+    @PutMapping("/reset-password")
+    public ResponseEntity<String> resetPassword(
+            @RequestBody ResetPasswordRequest request) {
+
+        return ResponseEntity.ok(
+                authService.resetPassword(
+                        request.getToken(),
+                        request.getNewPassword()
+                )
         );
     }
 }

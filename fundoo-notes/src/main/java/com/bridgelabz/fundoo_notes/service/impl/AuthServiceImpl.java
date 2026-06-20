@@ -142,4 +142,50 @@ public class AuthServiceImpl implements AuthService {
 
         return "Email verified successfully";
     }
+    @Override
+    public String forgotPassword(String email) {
+
+        User user = userRepository.findByEmail(email)
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("User not found"));
+
+        String token = UUID.randomUUID().toString();
+
+        user.setVerificationToken(token);
+
+        userRepository.save(user);
+
+        emailService.sendForgotPasswordEmail(
+                user.getEmail(),
+                token
+        );
+
+        logger.info("Forgot password mail sent to: {}", user.getEmail());
+
+        return "Password reset link sent to email";
+    }
+    @Override
+    public String resetPassword(
+            String token,
+            String newPassword) {
+
+        User user = userRepository.findAll()
+                .stream()
+                .filter(u -> token.equals(
+                        u.getVerificationToken()))
+                .findFirst()
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Invalid reset token"));
+
+        user.setPassword(
+                passwordEncoder.encode(newPassword));
+
+        user.setVerificationToken(null);
+
+        userRepository.save(user);
+
+        logger.info("Password reset successfully for: {}", user.getEmail());
+
+        return "Password reset successfully";
+    }
 }
