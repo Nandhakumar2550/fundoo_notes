@@ -8,11 +8,14 @@ import com.bridgelabz.fundoo_notes.entity.User;
 import com.bridgelabz.fundoo_notes.exception.ResourceNotFoundException;
 import com.bridgelabz.fundoo_notes.repository.UserRepository;
 import com.bridgelabz.fundoo_notes.service.AuthService;
+import com.bridgelabz.fundoo_notes.service.EmailService;
 import lombok.RequiredArgsConstructor;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -24,6 +27,7 @@ public class AuthServiceImpl implements AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final JwtService jwtService;
+    private final EmailService emailService;
 
     @Override
     public AuthResponse register(AuthRequest request) {
@@ -38,20 +42,28 @@ public class AuthServiceImpl implements AuthService {
                     .build();
         }
 
+        String token = UUID.randomUUID().toString();
+
         User user = User.builder()
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .email(request.getEmail())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .verified(false)
+                .verificationToken(token)
                 .build();
 
         userRepository.save(user);
 
+        emailService.sendVerificationEmail(
+                user.getEmail(),
+                token
+        );
+
         logger.info("User registered successfully: {}", user.getEmail());
 
         return AuthResponse.builder()
-                .message("User registered successfully")
+                .message("User registered successfully. Please verify your email.")
                 .build();
     }
 
@@ -63,6 +75,12 @@ public class AuthServiceImpl implements AuthService {
         User user = userRepository.findByEmail(request.getEmail())
                 .orElseThrow(() ->
                         new ResourceNotFoundException("User not found"));
+
+        if (!user.isVerified()) {
+            return AuthResponse.builder()
+                    .message("Please verify your email first")
+                    .build();
+        }
 
         boolean validPassword =
                 passwordEncoder.matches(
@@ -77,13 +95,13 @@ public class AuthServiceImpl implements AuthService {
                     .build();
         }
 
-        String token = jwtService.generateToken(user.getEmail());
+        String jwtToken = jwtService.generateToken(user.getEmail());
 
         logger.info("User logged in successfully: {}", user.getEmail());
 
         return AuthResponse.builder()
                 .message("Login successful")
-                .token(token)
+                .token(jwtToken)
                 .build();
     }
 
@@ -103,5 +121,25 @@ public class AuthServiceImpl implements AuthService {
                 .email(user.getEmail())
                 .verified(user.isVerified())
                 .build();
+    }
+
+    @Override
+    public String verifyEmail(String token) {
+
+        User user = userRepository.findAll()
+                .stream()
+                .filter(u -> token.equals(u.getVerificationToken()))
+                .findFirst()
+                .orElseThrow(() ->
+                        new ResourceNotFoundException("Invalid verification token"));
+
+        user.setVerified(true);
+        user.setVerificationToken(null);
+
+        userRepository.save(user);
+
+        logger.info("Email verified successfully for user: {}", user.getEmail());
+
+        return "Email verified successfully";
     }
 }
